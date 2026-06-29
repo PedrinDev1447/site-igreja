@@ -1,73 +1,79 @@
 import Image from "next/image";
 
-type YouTubeVideo = {
-  id: { videoId: string };
-  snippet: {
-    title: string;
-    thumbnails: { high: { url: string } };
-    publishedAt: string;
-  };
+type VideoCard = {
+  id: string;
+  title: string;
+  duration: string;
+  image: string;
+  href: string;
 };
 
-export default async function YouTubeLives() {
-  const API_KEY = process.env.YOUTUBE_API_KEY;
-  const CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID;
+const FEATURED_VIDEOS: VideoCard[] = [
+  {
+    id: "w2z-jLIwJkQ",
+    title: "",
+    duration: "",
+    image: "https://i.ytimg.com/vi/w2z-jLIwJkQ/hqdefault.jpg",
+    href: "https://youtu.be/w2z-jLIwJkQ",
+  },
+  {
+    id: "4IFtWz4omoE",
+    title: "",
+    duration: "",
+    image: "https://i.ytimg.com/vi/4IFtWz4omoE/hqdefault.jpg",
+    href: "https://youtu.be/4IFtWz4omoE",
+  },
+  {
+    id: "J8SKo6blfsk",
+    title: "",
+    duration: "",
+    image: "https://i.ytimg.com/vi/J8SKo6blfsk/hqdefault.jpg",
+    href: "https://www.youtube.com/live/J8SKo6blfsk",
+  },
+];
 
-  if (!API_KEY || !CHANNEL_ID || API_KEY === "sua_chave_aqui") {
-    return (
-      <div className="w-full text-center p-8 border border-dashed border-gray-500 rounded-2xl text-gray-400 italic">
-        Aguardando configuração das chaves da API do YouTube no arquivo .env.local
-      </div>
-    );
-  }
-
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=4&type=video`,
-      { next: { revalidate: 3600 } }
-    );
-
-    if (!res.ok) throw new Error("Falha ao buscar vídeos");
-
-    const data = await res.json();
-    const videos: YouTubeVideo[] = data.items;
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
-        {videos.map((video) => (
-          <a
-            key={video.id.videoId}
-            href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex flex-col gap-3"
-          >
-            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-800 transition-transform duration-300 group-hover:scale-[1.02] shadow-lg">
-              <Image
-                src={video.snippet.thumbnails.high.url}
-                alt={video.snippet.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300"></div>
-              <div className="absolute bottom-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                ASSISTIR
-              </div>
+function VideoGrid({ videos }: { videos: VideoCard[] }) {
+  return (
+    <div className="mx-auto grid w-full max-w-full grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:max-w-5xl lg:grid-cols-3">
+      {videos.map((video) => (
+        <a
+          key={video.id}
+          href={video.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex w-full max-w-full flex-col gap-3 text-left"
+        >
+          <div className="relative aspect-video w-full max-w-full overflow-hidden rounded-xl bg-[#111] shadow-[0_4px_24px_rgba(0,0,0,0.4)] ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-[1.02]">
+            <Image
+              src={video.image}
+              alt={video.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 320px"
+            />
+            <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/10" />
+            {video.duration && (
+              <span className="absolute bottom-3 right-3 rounded-md bg-black/75 px-2 py-1 font-mono text-xs tabular-nums text-white backdrop-blur-sm">
+                {video.duration}
+              </span>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600/90 shadow-lg">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
             </div>
-            <h3 className="text-lg font-serif italic text-text-light group-hover:text-red-400 transition-colors line-clamp-2">
-              {video.snippet.title}
-            </h3>
-          </a>
-        ))}
-      </div>
-    );
-  } catch {
-    return (
-      <div className="text-red-400 text-center italic">
-        Não foi possível carregar os vídeos no momento.
-      </div>
-    );
-  }
+          </div>
+          <h3 className="line-clamp-2 font-sans text-sm font-medium leading-snug text-white/90 transition-colors group-hover:text-white md:text-base">
+            {video.title}
+          </h3>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+export default function YouTubeLives() {
+  return <VideoGrid videos={FEATURED_VIDEOS} />;
 }

@@ -2,18 +2,22 @@ import type { NextConfig } from "next";
 import os from "os";
 
 function getLocalNetworkHosts(): string[] {
-  const hosts = new Set<string>();
+  try {
+    const hosts = new Set<string>();
 
-  for (const iface of Object.values(os.networkInterfaces())) {
-    if (!iface) continue;
-    for (const config of iface) {
-      if (config.family === "IPv4" && !config.internal) {
-        hosts.add(config.address);
+    for (const iface of Object.values(os.networkInterfaces() ?? {})) {
+      if (!iface) continue;
+      for (const config of iface) {
+        if (config.family === "IPv4" && !config.internal) {
+          hosts.add(config.address);
+        }
       }
     }
-  }
 
-  return [...hosts];
+    return [...hosts];
+  } catch {
+    return [];
+  }
 }
 
 const nextConfig: NextConfig = {
@@ -25,6 +29,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.ytimg.com",
         pathname: "/vi/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
       },
     ],
   },

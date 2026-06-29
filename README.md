@@ -12,37 +12,61 @@ Site oficial da igreja **Biblica Vida**, desenvolvido com Next.js. Apresenta inf
 | Estilização | [Tailwind CSS 4](https://tailwindcss.com/) |
 | Animações | [Framer Motion 12](https://www.framer.com/motion/) |
 | Compilador | [React Compiler](https://react.dev/learn/react-compiler) |
-| Fontes | [Geist](https://vercel.com/font) via `next/font` |
-| API externa | YouTube Data API v3 |
+| Fontes | [Inter](https://fonts.google.com/specimen/Inter) + [Playfair Display](https://fonts.google.com/specimen/Playfair+Display) via `next/font` |
 
 ## Funcionalidades
 
-- Header com vídeo de fundo em loop
-- Seção hero com mensagem institucional
-- Feed dinâmico dos últimos vídeos do canal no YouTube
+- Hero com logo, navegação por âncoras e área reservada para vídeo de destaque
+- Seção institucional “Sobre nós” com layout em duas colunas
+- Grade de vídeos em destaque do canal no YouTube
 - Listagem de pastores titulares e auxiliares com animações de entrada
 - Seção de ministérios com layout alternado
-- Rodapé com endereço, horários de culto e redes sociais
+- Rodapé com mapa interativo, horários de culto, endereço e redes sociais
+- Identidade visual com padrão de wallpaper e paleta ivory/charcoal
 
 ## Estrutura do projeto
 
 ```
 site-igreja/
 ├── public/
-│   ├── icon/          # Ícones de redes sociais e localização
-│   └── pastores/      # Fotos dos pastores
+│   ├── icon/              # Ícones de redes sociais e localização
+│   ├── pastores/          # Fotos dos pastores
+│   └── wallpaper/         # Logo e padrão visual da marca
 ├── src/
 │   ├── app/
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   └── components/
-│       ├── MinisteriosList.tsx
-│       ├── PastoresList.tsx
-│       └── YouTubeLives.tsx
+│   │   ├── globals.css    # Tokens de cor e tipografia (@theme)
+│   │   ├── layout.tsx     # Layout raiz e fontes
+│   │   └── page.tsx       # Página inicial (composição das seções)
+│   ├── components/
+│   │   ├── AboutSection.tsx
+│   │   ├── HeroSection.tsx
+│   │   ├── LocationCard.tsx
+│   │   ├── MinisteriosList.tsx
+│   │   ├── PastoresList.tsx
+│   │   ├── VideoPlayerSkeleton.tsx
+│   │   ├── WallpaperBackground.tsx
+│   │   ├── YouTubeLives.tsx
+│   │   └── YouTubeSection.tsx
+│   └── lib/
+│       └── layout.ts      # Classes utilitárias de espaçamento e container
+├── tailwind.config.ts     # Famílias tipográficas estendidas
 ├── next.config.ts
 └── package.json
 ```
+
+## Design system
+
+As cores e fontes ficam centralizadas em `src/app/globals.css` via `@theme`:
+
+| Token | Uso |
+|-------|-----|
+| `--color-bg-ivory` / `--color-bg-charcoal` | Fundos claros e escuros das seções |
+| `--color-text-dark` / `--color-text-light` | Texto principal |
+| `--color-text-muted` | Texto secundário |
+| `--font-sans` (Inter) | Corpo e UI |
+| `--font-serif` (Playfair Display) | Títulos e destaques |
+
+O componente `SectionBackground` aplica gradientes e o padrão de wallpaper (`public/wallpaper/`) em cada bloco da página.
 
 ## Pré-requisitos
 
@@ -56,17 +80,6 @@ git clone https://github.com/PedrinDev1447/site-igreja.git
 cd site-igreja
 npm install
 ```
-
-## Variáveis de ambiente
-
-Crie um arquivo `.env.local` na raiz do projeto:
-
-```env
-YOUTUBE_API_KEY=sua_chave_da_api
-YOUTUBE_CHANNEL_ID=id_do_canal
-```
-
-Sem essas variáveis, a seção de vídeos exibe uma mensagem de configuração pendente.
 
 ## Scripts disponíveis
 
@@ -92,14 +105,21 @@ Acesse no navegador:
 
 O projeto detecta automaticamente os IPs da rede local e libera o acesso mobile em modo de desenvolvimento via `allowedDevOrigins` no `next.config.ts`.
 
-## Assets pendentes
+## Conteúdo e assets
 
-- `public/video-fundo.mp4` — vídeo de fundo do header (ainda não incluído)
-- Imagens dos ministérios em `public/ministerios/`
+| Recurso | Local | Observação |
+|---------|-------|------------|
+| Vídeos em destaque | `src/components/YouTubeLives.tsx` | Lista estática de IDs do YouTube |
+| Fotos dos pastores | `public/pastores/` | PNG por pastor |
+| Logo e wallpaper | `public/wallpaper/` | Usados no hero e fundos das seções |
+| Horários e endereço | `src/components/LocationCard.tsx` | Atualizar manualmente quando necessário |
+| Imagem da seção Sobre | `src/components/AboutSection.tsx` | URL externa (Unsplash) |
+
+Imagens remotas do YouTube (`i.ytimg.com`) e Unsplash estão permitidas em `next.config.ts` → `images.remotePatterns`.
 
 ## Deploy
 
-O projeto pode ser implantado em plataformas compatíveis com Next.js, como [Vercel](https://vercel.com/). Configure as variáveis de ambiente do YouTube no painel da plataforma antes do deploy.
+O projeto pode ser implantado em plataformas compatíveis com Next.js, como [Vercel](https://vercel.com/).
 
 ## Licença
 
